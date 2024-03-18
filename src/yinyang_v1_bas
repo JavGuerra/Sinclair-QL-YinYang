@@ -1,0 +1,36 @@
+100 REMark nombre del programa, version
+110 REMark licencia, anyo, autores
+120 REMark Estructura basica
+130 :
+140 CLEAR: REMark 'mdv1_yinyang_v1_bas'
+150 dev$="mdv1_": prg$="yinyang": v$="v1"
+160 :
+170 INICIO: PANTALLA
+180 REPeat prg
+190   REMark Codigo del programa
+200   IF KEYROW(1)=8: EXIT prg: REMark ESC
+210 END REPeat prg
+220 FIN: STOP
+230 :
+240 DEFine PROCedure sa
+250   REMark Salva los cambios
+260   REMark Nota: crear un fichero con el
+270   REMark nombre correcto antes de usar
+280   REMark y con cada nueva version
+290   file$=dev$&prg$&"_"&v$&"_bas"
+300   DELETE file$: SAVE file$
+310 END DEFine sa
+320 :
+330 DEFine PROCedure INICIO
+340   REMark Inicializacion del programa
+350 END DEFine INICIO
+360 :
+370 DEFine PROCedure FIN
+380   REMark Finalizacion del programa
+390 END DEFine FIN
+400 :
+410 DEFine PROCedure PANTALLA
+420   REMark Presentacion de pantalla
+430 END DEFine PANTALLA
+440 :
+450 REMark Resto de FNs y PROCs aqui
