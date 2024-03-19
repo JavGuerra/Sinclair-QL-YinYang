@@ -1,0 +1,101 @@
+100 REMark Pong Wars, 0.01a
+110 :
+120 DEFine PROCedure inicio
+130   REMark inicializacion del programa
+140   chd = 5: REMark ventana de juego
+150   cw = 20: ch = 20: cw2 = cw DIV 2: REMark anchura, altura y media anchura en caracteres
+160   ww = 12*cw+4: wh = 10*ch+2: ww2 = ww DIV 2-1: REMark anchura, altura y media anchura en pixeles
+170   chs = 6: REMark ventana de marcadores
+180   REMark colores de las pelotas
+190   DIM color(1)
+200   color(0) = 0: REMark color para la noche
+210   color(1) = 6: REMark color para el dia
+220   border_color = 3: REMark color del borde
+230   REMark datos para cada pelota (x, y, dx, dy)
+240   DIM pelota(1,3)
+250   pelota(0,0) = cw2 DIV 2: pelota(0,1) = RND(ch-2)+1: pelota(0,2) = 1: pelota(0,3) = -1
+260   pelota(1,0) = (3*cw) DIV 4: pelota(1,1) = RND(ch-2)+1: pelota(1,2) = -1: pelota(1,3) = 1
+270   REMark cuadrados a conquistar e inicializacion
+280   DIM cuadrado(ch-1,cw-1)
+290   FOR y = 0 TO ch-1
+300     FOR x = cw2 TO cw-1: cuadrado(y,x) = 1: NEXT x
+310   NEXT y
+320   REMark puntuaciones
+330   DIM puntos(1): FOR i = 0 TO 1: puntos(i) = cw*ch DIV 2
+340 END DEFine inicio
+350 :
+360 DEFine PROCedure fin
+370   REMark finalizacion del programa
+380   kk$ = INKEY$(0): REMark limpia las teclas pendientes en la cola del teclado
+390   CLOSE #chd
+400   CLOSE #chs
+410 END DEFine fin
+420 :
+430 DEFine PROCedure pantalla
+440   REMark presentacion de pantalla
+450   lm = (512-ww) DIV 2: REMark margen izquierdo
+460   tm = wh+16: REMark margen superior de la ventana de marcadores
+470   MODE 8: OPEN #chd,"scr_"&ww&"x"&wh&"a"&lm&"x16": PAPER #chd,color(0): CLS #chd: BORDER #chd,1,border_color
+480   BLOCK #chd,ww2,wh-2,ww2,0,color(1)
+490   OPEN #chs,"scr_"&ww&"x12a"&lm&"x"&tm: PAPER #chs,color(0): CLS #chs: BORDER #chs,1,border_color
+500   BLOCK #chs,ww2,10,ww2,0,color(1)
+510 END DEFine pantalla
+520 :
+530 DEFine PROCedure espera(ratico)
+540   REMark espera
+550   FOR d = 0 TO 1*ratico: REMark pausa
+560 END DEFine espera
+570 :
+580 DEFine FuNction justificaConCeros$(v)
+590   REMark justifica valor con ceros por la izquierda
+600   r$ = "000"&v
+610   rl = LEN(r$)
+620   RETurn r$(rl-2 TO rl)
+630 END DEFine justificaConCeros
+640 :
+650 DEFine PROCedure marcadores
+660   REMark muestra puntuaciones
+670   PAPER #chs,color(0): INK #chs,color(1): AT #chs,0,1: PRINT #chs,justificaConCeros$(puntos(0))
+680   PAPER #chs,color(1): INK #chs,color(0): AT #chs,0,cw-4: PRINT #chs,justificaConCeros$(puntos(1))
+690 END DEFine marcadores
+700 :
+710 DEFine PROCedure mueve(p, dp, l, r)
+720   REMark mueve una coordenada
+730   p = p+dp
+740   IF p<0 THEN
+750     dp = -dp*(1-2*RND(r)): p = 0
+760   ELSE
+770     IF p>= l THEN dp = -dp: p = l-1
+780   END IF
+790 END DEFine mueve
+800 :
+810 DEFine PROCedure muevePelotas
+820   REMark mueve cada pelota
+830   FOR i = 0 TO 1
+840     x = pelota(i,0): y = pelota(i,1): dx = pelota(i,2): dy = pelota(i,3)
+850     PAPER #chd,color(i): AT #chd,y,x: PRINT #chd," "
+860     mueve x, dx, cw, 0: mueve y, dy, ch, 1
+870     PAPER #chd,color(i): INK #chd,color(1-i): AT #chd,y,x: PRINT #chd,"O"
+880     REMark actualiza puntuacion
+890     o = cuadrado(y,x)
+900     cuadrado(y,x) = i
+910     IF i<>o THEN
+920       dx = -dx
+930       IF RND(2) THEN dy = -dy
+940       puntos(i) = puntos(i)+1: puntos(1-i) = puntos(1-i)-1
+950     END IF
+960     pelota(i,0) = x: pelota(i,1) = y: pelota(i,2) = dx: pelota(i,3) = dy
+970   NEXT i
+980 END DEFine muevePelotas
+990 :
+1000 REMark programa
+1010 :
+1020 CLEAR: inicio
+1030 pantalla
+1040 REPeat ciclo
+1050   muevePelotas
+1060   marcadores
+1070   IF KEYROW(1) && 8 THEN EXIT prg: REMark salida con ESC
+1080   espera(40000)
+1090 END REPeat ciclo
+1100 fin

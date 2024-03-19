@@ -1,0 +1,36 @@
+100 REMark pruebas, version 1.0
+110 REMark miguel angel rojo
+120 REMark 2024
+130 dev$="win1_": prg$="miguel": v$="v1"
+135 DEFine PROCedure salva
+137 file$=dev$&prg$&"_"&v$&"_bas"
+138 DELETE file$: SAVE file$
+139 END DEFine salva
+140 DEFine PROCedure PANTALLA
+150 MODE 8
+151 OPEN#5,scr_512x256a0x0:PAPER#5,0:BORDER#5,1,2:INK#5,4,7:CLS#5: REMark pantalla
+160 OPEN#3,scr_200x22a150x16:PAPER#3,0:BORDER#3,1,2:INK#3,4,7:CSIZE#3,0,1:PRINT#3,"   SUPER BASIC"
+170 OPEN#4,scr_512x256a0x0:PAPER#4,0:BORDER#4,0:INK#4,7
+180 AT #4,6,8:PRINT #4,"pulse 1 para buenos dias"
+190 AT #4,7,8:PRINT #4,"pulse 2 para buenas tardes"
+200 AT #4,8,8:PRINT #4,"pulse 3 para buenas noches"
+210 AT #4,20,10:PRINT #4,"pulse esc para salir"
+220 PAUSE
+250 END DEFine PANTALLA
+260 PANTALLA
+270 REPeat prog
+280     IF KEYROW(1)=8: EXIT prog
+290     IF KEYROW(4)=8: opcion1
+300     IF KEYROW(6)=2: opcion2
+310     IF KEYROW(4)=2: opcion3
+320 END REPeat prog
+330 DEFine PROCedure opcion1
+340   AT #5,11,13:PRINT #5,"buenos dias"
+350 END DEFine opcion1
+360 DEFine PROCedure opcion2
+370    AT #5,12,13:PRINT #5,"buenas tardes"
+380 END DEFine opcion2
+390 DEFine PROCedure opcion3
+400    AT #5,13,13:PRINT #5,"buenas noches"
+410 END DEFine opcion3
+420 CLS#5: AT #5,14,12:PAPER#5,1:INK#5,5:PRINT#5,"GRACIAS POR SALIR"
