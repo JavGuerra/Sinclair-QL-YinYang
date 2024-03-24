@@ -1,0 +1,138 @@
+100 REMark ComeDonas, 1.00
+110 REMark Come todas las donas que puedas... antes de que se te acabe el tiempo
+120 REMark controles:
+130 REMark   flechas de cursor y O P Q A
+140 REMark   ESC para salir
+150 :
+160 DEFine PROCedure espera(ratico)
+170   REMark espera un ratico
+180   LOCal d
+190   FOR d = 0 TO 1*ratico: REMark 1 es el factor de velocidad
+200 END DEFine espera
+210 :
+220 DEFine FuNction cero$(v)
+230   REMark justifica valor con ceros por la izquierda
+240   LOCal rl
+250   r$ = "000"&v: rl = LEN(r$)
+260   RETurn r$(rl-2 TO rl)
+270 END DEFine ceros
+280 :
+290 DEFine PROCedure pinta(chj, x, y, c$, c)
+300   REMark pinta en la ventana de juego (canal chj) el caracter c$ con el color c en (x,y)
+310   INK #chj, c: AT #chj, y, x: PRINT #chj, c$
+320 END DEFine marcador
+330 :
+340 DEFine PROCedure fin(chj, chm)
+350   REMark finalizacion del programa
+360   LOCal kk$: kk$ = INKEY$(0): REMark limpia las teclas pendientes en la cola del teclado
+370   CLOSE #chj
+380   CLOSE #chm
+390 END DEFine fin
+400 :
+410 DEFine PROCedure pantalla(chj, ww, wh, color)
+420   REMark presentacion de pantalla
+430   LOCal lm, tm
+440   lm = (512-ww) DIV 2: REMark margen izquierdo
+450   tm = wh+16: REMark margen superior de la ventana de marcadores
+460   MODE 8: OPEN #chj, "scr_"&ww&"x"&wh&"a"&lm&"x16": PAPER #chj, color(0): CLS #chj: BORDER #chj, 1, color(3)
+470   OPEN #chm, "scr_"&ww&"x12a"&lm&"x"&tm: PAPER #chm, color(0): CLS #chm: BORDER #chm, 1, color(3)
+480 END DEFine pantalla
+490 :
+500 DEFine PROCedure marcador(chm, puntos, tiempo, cw, color)
+510   REMark muestra puntuaciones
+520   PAPER #chm, color(0): AT #chm, 0, cw DIV 2
+530   INK #chm, color(2): PRINT #chm, "t"!
+540   INK #chm, color(1): PRINT #chm, cero$(tiempo)!
+550   INK #chm, color(2): PRINT #chm, " p"!
+560   INK #chm, color(1): PRINT #chm, cero$(puntos)!
+570 END DEFine marcador
+580 :
+590 DEFine PROCedure nuevaDona(d, dona_n, x, y, x2, y2, cw, ch)
+600   REMark crea una nueva dona
+610   LOCal i, nx, ny
+620   y2(d) = -1
+630   nx = RND(cw-1): ny = RND(ch-1): REMark nuevas coordenadas aleatorias para la dona
+640   IF x == nx AND y == ny THEN GO TO 630: REMark si coincide con el avatar, escoge otras
+650   FOR i = 0 TO dona_n: IF nx == x2(i) AND ny == y2(i) THEN GO TO 630: REMark si coincide con otra dona, escoge otras
+660   x2(d) = nx: y2(d) = ny:
+670 END DEFine nuevaDona
+680 :
+690 DEFine PROCedure mueve(p, dp, l, r)
+700   REMark mueve una coordenada
+710   p = p+dp
+720   IF p < 0 THEN
+730     dp = -dp*(1-2*RND(r)): p = 0
+740   ELSE
+750     IF p >= l THEN dp = -dp: p = l-1
+760   END IF
+770 END DEFine mueve
+780 :
+790 DEFine FuNction mueveComedonas(chj, x, y, x2, y2, cw, ch, puntos, tiempo, avatar$, borrado$, color)
+800   REMark mueve el avatar
+810   LOCal i, ox, oy
+820   ox = x: oy = y
+830   IF KEYROW(1) && 8 THEN RETurn 1: REMark ESC
+840   IF KEYROW(1) && 16 OR KEYROW(4) && 32 THEN x = x+1: IF x >= cw THEN x = 0: REMark flecha derecha y P
+850   IF KEYROW(1) && 128 OR KEYROW(4) && 16 THEN y = y+1: IF y >= ch THEN y = 0: REMark flecha abajo y A
+860   IF KEYROW(1) && 2 OR KEYROW(5) && 128 THEN x = x-1: IF x < 0 THEN x = cw-1: REMark flecha izquierda y O
+870   IF KEYROW(1) && 4 OR KEYROW(6) && 8 THEN y = y-1: IF y < 0 THEN y = ch-1: REMark flecha arriba y Q
+880   IF ox <> x OR oy <> y THEN
+890     REMark comprobar colision con donas
+900     FOR i = 0 TO dona_n
+910       IF x = x2(i) AND y = y2(i) THEN
+920         REMark cuenta y muestra los puntos
+930         puntos = puntos+1: tiempo = 9: marcador chm, puntos, tiempo, cw, color
+940         REMark crea y muestra la nueva dona
+950         nuevaDona i, dona_n, x, y, x2, y2, cw, ch: pinta chj, x2(i), y2(i), dona$, color(2)
+960         REMark sale porque no es neceario comprobar mas donas
+970         EXIT i
+980       END IF
+990     END FOR i
+1000     REMark borra y pinta el avatar
+1010     pinta chj, ox, oy, borrado$, color(1): pinta chj, x, y, avatar$, color(1)
+1020   END IF
+1030   RETurn 0
+1040 END DEFine mueveComedonas
+1050 :
+1060 DEFine PROCedure programa
+1070   REMark programa principal
+1080   LOCal ciclo, contador, i
+1090   CLEAR
+1100   REMark datos del programa
+1110   chj = 5: REMark ventana de juego
+1120   chm = 6: REMark ventana de marcadores
+1130   cw = 20: ch = 20: REMark anchura, altura y media anchura en caracteres
+1140   ww = 12*cw+4: wh = 10*ch+2: REMark anchura, altura y media anchura en pixeles
+1150   REMark colores
+1160   DIM color(3)
+1170   color(0) = 0: REMark color para el fondo
+1180   color(1) = 6: REMark color para el avatar
+1190   color(2) = 2: REMark color para el dona
+1200   color(3) = 3: REMark color del borde
+1210   REMark avatar
+1220   avatar$ = "C": REMark caracter para el avatar
+1230   borrado$ = " ": REMark caracter para borrar personaje
+1240   x = cw DIV 2: y = ch DIV 2: REMark posicion del avatar
+1250   REMark donas
+1260   dona$ = "o": REMark caracter para las donas
+1270   dona_n = 9: REMark numero de donas - 1
+1280   DIM x2(dona_n), y2(dona_n): REMark posiciones de las donas
+1290   FOR i = 0 TO dona_n: y2(i) = -1: nuevaDona i, dona_n, x, y, x2, y2, cw, ch
+1300   REMark puntuacion y tiempo
+1310   puntos = 0: tiempo = 9: contador = 0
+1320   REMark muestra las ventanas
+1330   pantalla chj, ww, wh, color
+1340   CLS #chj: FOR i = 0 TO dona_n: pinta chj, x2(i), y2(i), dona$, color(2)
+1350   marcador chm, puntos, tiempo, cw, color
+1360   INK #chm, 5: AT #chm, 0, 0: PRINT #chm, "ComeDonas"
+1370   pinta chj, x, y, avatar$, color(1)
+1380   REPeat ciclo
+1390     IF mueveComedonas(chj, x, y, x2, y2, cw, ch, puntos, tiempo, avatar$, borrado$, color) THEN EXIT ciclo
+1400     contador = contador+1: IF contador = 9 THEN contador = 0: tiempo = tiempo-1 : marcador chm, puntos, tiempo, cw, color: IF NOT tiempo THEN AT #chj, ch DIV 2, cw DIV 2-5: INK #chj, 7: PRINT #chj, "GAME OVER": EXIT ciclo
+1410     espera 25000
+1420   NEXT ciclo
+1430   fin chj, chm
+1440 END DEFine programa
+1450 :
+1460 programa
+1470 STOP
