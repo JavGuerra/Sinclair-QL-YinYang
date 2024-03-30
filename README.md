@@ -1,8 +1,8 @@
-# Sinclair QL YinYang
+# Sinclair QL Yin-Yang
 
 Este repositorio contiene las diferentes entregas de la demo YinYang creada para enseñar programación en lenguaje SuperBASIC.
 
-![Captura de pantalla de la demo](docs/yinyang_ql.png)
+![Captura de pantalla de la demo](docs/yin-yang_ql.png)
 
 Encontrarás el código de las distintas versiones del programa en la carpeta `src`, y los ejercicios presentados por los lectores en la carpeta `src/ejercicios`.
 

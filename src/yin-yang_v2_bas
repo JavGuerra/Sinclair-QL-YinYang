@@ -3,7 +3,7 @@
 120 REMark Variables y tablero
 130 :
 140 CLEAR: RANDOMISE: ch%=3: ch2%=4
-150 dev$="mdv1_": prg$="yinyang": v$="v2"
+150 dev$="mdv1_": prg$="yin-yang": v$="v2"
 160 :
 170 INICIO: PANTALLA
 180 REPeat prg

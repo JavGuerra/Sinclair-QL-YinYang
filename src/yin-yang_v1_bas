@@ -3,7 +3,7 @@
 120 REMark Estructura basica
 130 :
 140 CLEAR: REMark 'mdv1_yinyang_v1_bas'
-150 dev$="mdv1_": prg$="yinyang": v$="v1"
+150 dev$="mdv1_": prg$="yin-yang": v$="v1"
 160 :
 170 INICIO: PANTALLA
 180 REPeat prg
