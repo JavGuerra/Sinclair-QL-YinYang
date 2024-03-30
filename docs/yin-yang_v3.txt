@@ -169,3 +169,111 @@ Seguimos. Las líneas de la 780 a la 830 han sido sustituidas por una única lí
 [code]FOR i=0,1: MUEVE(i): MARCADOR(i)[/code]
 
 Como veremos, MUEVE() pinta una bola, la que le digamos, y MARCADOR() pinta el marcador de una bola, también la que le digamos.
+
+El bucle FOR, que no requiere END FOR porque todo él está en una línea, es extraño. No tiene rangos, sino una lista de números. En SuperBASIC, los valores que tomará la variable del bucle en cada iteración pueden definirse como un rango (n TO m) o como iuna lista de valores (a, b, c, d…). Aquí uso esta lista de valores (0, 1) para dibujar la bola 1 y la bola 2, una en cada iteración del bucle, y sus marcadores.
+
+El procedimiento MARCADOR() también ha cambiado. Ahora, como debe servir no sólo al inicio para pintar los marcadores, sino durante toda la demo para mostrar las actualizaciones de los marcadores alternos, recibe el parámetro bola%, que le permitirá saber en qué posición pintará el marcador, y qué valor debe poner en el marcador, apoyándose en la función CERO$().
+
+En la siguiente línea decide la posición:
+
+[code]850   CURSOR #ch2%,283*bola%,0[/code]
+
+Como el marcador de la bola 1 debe pintarse en la posición 0,0 y el de la bola 2 en la posición 283,0, Para poner la posición correcta segun la bola, multiplico el valor 283 por bola%, de tal forma que si bola% es cero, 283*0 = 0, y si es 1, 283*1 = 283.
+
+En esta línea puinto la bola que corresponda:
+
+[code]860   PRINT  #ch2%,CERO$(b%(bola%,4))[/code]
+
+Como b%(bola%,4) contendrá la puntuación de la bola en cuestión, con PRINT imprimo en la posición ya calculada el marcador, usando la función CERO$() que devuelve una cadena de texto con ceros a la izquierda.
+
+Bien, para mover una bola, necesitamos:
+
+    1. Borrarla de su posición actual
+    2. Calcular la nueva posición
+    3. Pintarla en su nueva posición
+    4. Comprobar si hay colisiones
+
+Tal como dije, cuatro nuevas funciones se suman a esta versión. Cada una de ellas corresponde a uno de estos pasos. Veámoslas.
+
+[size=150][b]BORRA()[/b][/size]
+
+Código:
+
+[code]950 DEFine PROCedure BORRA(bola%)
+960   REMark Borra la bola
+970   LOCal x%, y%, c1%
+980   x%=b%(bola%,0) : y%=b%(bola%,1)
+990   c1%=b%(bola%,5): PAPER #ch%,c1%
+1000   AT #ch%,x%,y%: PRINT #ch%,f$
+1010 END DEFine BORRA[/code]
+
+A efectos de aportar claridad a la explicación exclusivamente, en este yt sucesivos procedimientos usaré una serie de variables locales, es decir, cuyo ámbito estará sólo dentro del procedimiento. Así, x% e y% contendrán la posición de la bola en el tablero, y c1% el color de fondo de la bola con el que sobreimprimiremos f%, que contiene un espacio vacío. Con esto borramos la bola en cuestión, la bola 1 o la bola 2 dependiendo del valor de la variable bola%.
+
+[size=150][b]CALCULA()[/b][/size]
+
+Código:
+
+[code]1030 DEFine PROCedure CALCULA(bola%)
+1040   REMark Calcula un movimiento
+1050   LOCal x%, y%, dx%, dy%
+1060   x%=b%(bola%,0): dx%=b%(bola%,2)
+1070   y%=b%(bola%,1): dy%=b%(bola%,3)
+1080   x%=x%+dx%: b%(bola%,0)=x%
+1090   y%=y%+dy%: b%(bola%,1)=y%
+1100 END DEFine CALCULA[/code]
+
+Mismo caso en este procedimiento. Aquí, con las varialbes locales x%, y%, dx%, dy% calculo la siguiente posición de la bola, y la guardo en la matriz. Ver las líneas 1080 y 1090. a x% le sumo dx% y lo guardo en b%() y lo mismo con la y%.
+
+[size=150][b]MUEVE()[/b][/size]
+
+Código:
+
+[code]1120 DEFine PROCedure MUEVE(bola%)
+1130   REMark Mueve la bola
+1140   LOCal x%, y%, c1%, c2%
+1150   x%=b%(bola%,0): y%=b%(bola%,1)
+1160   c1%=b%(bola%,5): c2%=b%(1-bola%,5)
+1170   PAPER #ch%,c1%: INK #ch%,c2%
+1180   AT #ch%,x%,y% : PRINT #ch%,b$
+1190 END DEFine MUEVE[/code]
+
+En esta ocasión uso X e Y, el color del fondo y el color de la tinta, porque se trata de dibujar la bola que corresponda con sus colores. Como los colores de la bola y del fondo son inversos en cada bola, es decir, la bola 1 tiene de fondo el color azul y la tinta el color amarillo, y la bola 2 al contrario, el fondo amarillo y el color de la tinta el azul, el color c2%, que corresponde a la tinta, se calcula accediendo al color de la bola contraria, empleando la formula 1-bola% que vimos antes en n%.
+
+[size=150][b]PRUEBA()[/b][/size]
+
+Código:
+
+[code]1210 DEFine PROCedure PRUEBA(bola%)
+1220   REMark Comprueba si rebota
+1230   LOCal x%, y%, dx%, dy%
+1240   x%=b%(bola%,0): dx%=b%(bola%,2)
+1250   y%=b%(bola%,1): dy%=b%(bola%,3)
+1260   IF x%=0 OR x%=19: b%(bola%,2)=-dx%
+1270   IF y%=0 OR y%=19: b%(bola%,3)=-dy%
+1280 END DEFine PRUEBA[/code]
+
+Esta es la parte interesante, donde se comprueba si hay rebotes y, en tal caso, se hacen los cambios de dirección. Aquí usaré la posición X e Y de la bola y sus correspondientes desplazamientos DX y DY.
+
+En las líneas 1260 y 1270 puede verse que si el valor de X o de Y es 0 o es 19, que son los límites del tablero, el valor de DX o de DY cambia, es decir, se convierte en el opuesto (p.ej. DX=-DX). Y si cambia, se guarda su valor opuesto en la matriz.
+
+Y vuelta a empezar: borrar la bola, calcular la nueva posición, pintar la bola, compribar colisiones. Pruebalo ejecutando el programa.
+
+[size=150][b]Y en la próxima entrega…[/b][/size]
+
+.La próxima entrega será la última, y en ella veremos como aumentar el marcador y comprobar colisiones con la zona del contrario.
+
+[size=150][b]Ejercicio[/b][/size]
+
+Tomando como base el ejercicio anterior de comer donuts, esta vez vamos a hacer que, cuando el avatar se coma un donut, su cuerpo crezca, y le salga una cola tan larga como donuts ha comido. Por supuesto, a medida que movemos el avatar, su cola se arrastra con el, como en el conocido juego Snake. Esto es, por si no lo habáis notado, un clon de dicho juego.
+
+Las partes del cuerpo podemos representarlasa con la letra «M». Para arrastrar el cuerpo de nuestro avatar con forma de serpiente, con cada movimineto, debemos limpiar la cola de la serpiente. Esto implica que, de alguna forma, debemos guardar en orden, en alguna estructura, las posiciones XY no sólo del avatar (la cabeza de la serpiente), sino de cada parte del cuerpo, y esta estructura será mayor cuanto más grande se haga la serpiente como consecuencia de comer donuts.
+
+¿Y qué tal si le añades un marcador donde ir anotando puntos?
+
+[b][size=150]Enlaces recomendados[/size][/b]
+
+    [url=https://sinclairql.speccy.org/manuales/sqlgu.htm]Manual del QL en español[/url]
+    [url=https://sinclairql.speccy.org/manuales/tk2/index.htm]Manual de Toolkit II en español[/url]
+    [url=https://github.com/JavGuerra/Sinclair-QL-YinYang.git]Código en GitHub, repo Sinclair-QL-YinYang[/url]
+
+Esta entrada se publicó primero en [url=https://sinclairqles.wordpress.com/2024/03/29/programando-mi-primera-demo-en-ql-fasciculo-iii-movimiento-y-rebotes/]QBLog[/url]
