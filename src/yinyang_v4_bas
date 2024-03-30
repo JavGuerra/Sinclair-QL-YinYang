@@ -1,0 +1,130 @@
+100 REMark Yin & Yang v.4
+110 REMark GPL, 2024, Badaman
+120 REMark Colisiones y puntuaciones
+130 :
+140 CLEAR: RANDOMISE: ch%=3: ch2%=4
+150 dev$="mdv1_": prg$="yinyang": v$="v4"
+160 :
+170 INICIO: PANTALLA
+180 REPeat prg
+190   n%=1-n%
+200   BORRA(n%): CALCULA(n%)
+210   MUEVE(n%): PRUEBA(n%)
+220   IF KEYROW(1)=8: EXIT prg: REMark ESC
+230 END REPeat prg
+240 FIN: STOP
+250 :
+260 DEFine PROCedure sa
+270   REMark Salva los cambios
+280   file$ = dev$&prg$&"_"&v$&"_bas"
+290   DELETE file$ : SAVE file$
+300 END DEFine sa
+310 :
+320 DEFine PROCedure INICIO
+330   REMark Inicializacion del programa
+340   an%=20-1: al%=20-1
+350   DIM tablero%(an%, al%): DIM b%(1,5)
+360   f$=" ": b$="O": REMark b$=CHR$(226)
+370   FOR i=0 TO 19
+380     FOR j= 0 TO  9: tablero%(i,j)=0
+390     FOR j=10 TO 19: tablero%(i,j)=1
+400   END FOR i
+410   REMark Bolas, posiciones 'x' e 'y'
+420   b%(0,0)=RND( 0 TO 18) : REMark x1
+430   b%(0,1)=RND( 0 TO  9) : REMark y1
+440   b%(1,0)=RND( 1 TO 19) : REMark x2
+450   b%(1,1)=RND(10 TO 19) : REMark y2
+460   REMark Desplazamientos 'dx' y 'dy'
+470   b%(0,2)= 1: b%(0,3)= 1: REMark d1
+480   b%(1,2)=-1: b%(1,3)=-1: REMark d2
+490   REMark Ambas puntuaciones
+500   b%(0,4)=200 : b%(1,4)=200
+510   REMark Colores
+520   b%(0,5)=1 : b%(1,5)=6
+530   n%=1 : REMark Bola alterna
+540 END DEFine INICIO
+550 :
+560 DEFine PROCedure FIN
+570   REMark Finalizacion del programa
+580   CLOSE #ch%: CLOSE #ch2%: MODE 4
+590 END DEFine FIN
+600 :
+610 DEFine PROCedure PANTALLA
+620   REMark Presentacion de pantalla
+630   MODE 8
+640   REMark Dibuja tablero
+650   OPEN   #ch%,scr_512x256a0x0
+660   OPEN   #ch2%,scr_324x225a97x18
+670   PAPER  #ch%,5,7: CLS #ch%
+680   PAPER  #ch2%,0: CLS #ch2%
+690   WINDOW #ch%,324,202,94,16
+700   WINDOW #ch2%,324,22,94,218
+710   PAPER  #ch%,b%(0,5): CLS #ch%
+720   PAPER  #ch2%,3: CLS #ch2%
+730   BORDER #ch%,1,3: BORDER #ch2%,1
+740   BLOCK  #ch%,160,200,160,0,b%(1,5)
+750   CSIZE  #ch%,3,0: CSIZE #ch2%,0,1
+760   INK    #ch2%,4: CURSOR #ch2%,99,0
+770   PRINT  #ch2%,"YIN & YANG"
+780   INK    #ch2%,7
+790   REMark Posicion inicial de pelotas
+800   FOR i=0,1: MUEVE(i): MARCADOR(i)
+810 END DEFine PANTALLA
+820 :
+830 DEFine PROCedure MARCADOR(bola%)
+840   REMark Actualiza el marcador
+850   CURSOR #ch2%,283*bola%,0
+860   PRINT  #ch2%,CERO$(b%(bola%,4))
+870 END DEFine MARCADOR
+880 :
+890 DEFine FuNction CERO$(valor)
+900   REMark Rellena con ceros, max. 999
+910   txt$=valor: ln%=LEN(txt$)
+920   RETurn FILL$("0",3-ln%)&txt$
+930 END DEFine CERO$
+940 :
+950 DEFine PROCedure BORRA(bola%)
+960   REMark Borra la bola
+970   LOCal x%, y%, c1%
+980   x%=b%(bola%,0) : y%=b%(bola%,1)
+990   c1%=b%(bola%,5): PAPER #ch%,c1%
+1000   AT #ch%,x%,y%: PRINT #ch%,f$
+1010 END DEFine BORRA
+1020 :
+1030 DEFine PROCedure CALCULA(bola%)
+1040   REMark Calcula un movimiento
+1050   LOCal x%, y%, dx%, dy%
+1060   x%=b%(bola%,0): dx%=b%(bola%,2)
+1070   y%=b%(bola%,1): dy%=b%(bola%,3)
+1080   x%=x%+dx%: b%(bola%,0)=x%
+1090   y%=y%+dy%: b%(bola%,1)=y%
+1100 END DEFine CALCULA
+1110 :
+1120 DEFine PROCedure MUEVE(bola%)
+1130   REMark Mueve la bola
+1140   LOCal x%, y%, c1%, c2%
+1150   x%=b%(bola%,0): y%=b%(bola%,1)
+1160   c1%=b%(bola%,5): c2%=b%(1-bola%,5)
+1170   PAPER #ch%,c1%: INK #ch%,c2%
+1180   AT #ch%,x%,y% : PRINT #ch%,b$
+1190 END DEFine MUEVE
+1200 :
+1210 DEFine PROCedure PRUEBA(bola%)
+1220   REMark Comprueba colisiones
+1230   LOCal x%, y%, dx%, dy%
+1240   x%=b%(bola%,0): dx%=b%(bola%,2)
+1250   y%=b%(bola%,1): dy%=b%(bola%,3)
+1260   :
+1270   IF tablero%(x%, y%)=1-bola% THEN 
+1280     IF y%-dy%>1 AND y%-dy%<18 THEN 
+1290       dy%=-dy%: b%(bola%,3)=dy%
+1300       tablero%(x%, y%)=bola%
+1310       b%(bola%,4)=b%(bola%,4)+1
+1320       b%(1-bola%,4)=b%(1-bola%,4)-1
+1330       FOR i=0,1: MARCADOR(i)
+1340     END IF 
+1350   END IF 
+1360   :
+1370   IF x%=0 OR x%=19: b%(bola%,2)=-dx%
+1380   IF y%=0 OR y%=19: b%(bola%,3)=-dy%
+1390 END DEFine PRUEBA
