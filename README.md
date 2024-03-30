@@ -2,6 +2,8 @@
 
 Este repositorio contiene las diferentes entregas de la demo YinYang creada para enseñar programación en lenguaje SuperBASIC.
 
+![Captura de pantalla de la demo](docs/yin-yang_ql.png)
+
 Encontrarás el código de las distintas versiones del programa en la carpeta `src`.
 
 Las explicaciones acerca del desarrollo de la demo comienzan en esta entrada de QBlog:
@@ -10,8 +12,8 @@ Las explicaciones acerca del desarrollo de la demo comienzan en esta entrada de 
 
 Y puede leerse en capítulos sucesivos enlazados desde esa entrada.
 
-Pueden seguirse los comentarios de la comunidad en el siguiente hilo de RetroWiki:
+Estas explicaciones también fueron publicadas en RetroWiki:
 
 https://retrowiki.es/viewtopic.php?f=98&t=200040237
 
-Está demo está basada en la demo PongWars. El código en JavaScript y el video puede verse aquí: https://github.com/vnglst/pong-wars
+Este contenido está basado en la demo `PongWars`. El código en JavaScript y el video puede verse aquí: https://github.com/vnglst/pong-wars

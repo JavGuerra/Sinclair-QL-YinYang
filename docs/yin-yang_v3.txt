@@ -1,0 +1,171 @@
+Programando mi primera Demo en QL – fascículo III, movimiento y rebotes
+
+Viene del hilo: https://retrowiki.es/viewtopic.php?f=98&t=200040267
+
+Sigo con esta serie de artículos, y hoy toca hablar de movimiento y rebotes de las bolas de la demo.
+
+[size=150][b]La dinámica[/b][/size]
+
+En anteriores entregas, hemos definido la estructura del programa, y luego inicializado las variables y dibujado la interfaz. Vamos a ver cómo darle movimiento a las bolas dentro del tablero y hacer algunas comprobaciones básicas para evitar que las bolas se salgan del mismo.
+
+Como sabemos, cada bola tiene una posición X e Y en el tablero, que corresponde con la posición horizontal y vertical en el mismo. Para movernos por el tablero, que tiene unas dimensiones concretas, debemos sumar a las posiciones X e Y de cada bola, alternativamente, el valor 1 para avanzar. Con esto calculamos el siguiente movimiento. Es decir, que si la bola 1 está en la posición X=2, Y=5, le sumaremos uno a ambas, y calculamos así el movimiento: X=X+1, X=3; Y=Y+1, Y=6. Lo mismo para las posiciones X e Y de la bola 2. Primero la bola 1, luego la bola 2, alternativamente, sin parar.
+
+Al valor que le sumamos a las posiciones X e Y le llamamos desplazamiento. Nos referiremos a ellos como DX y DY. Así que tenemos X1, Y1, DX1, DY1 para la bola 1 y X2, Y2, DX2, DY2 para la bola 2.
+
+Pero si el desplazamiento es 1, ¿porqué necesitamos una variable?. Pues porque el desplazamiento puede ser negativo. Imagina que avanzamos con la bola 1 hasta llegar al borde del tablero. El siguiente movimiento no puede ser sumarle 1 a la posición X o Y. Debemos aplicar un cambio de dirección de la bola, com osi esta hubiera rebotado.
+
+Si, por ejemplo, X1=10 e Y1=19, siendo que 19 es el tope del tablero, el valor de DY no puede ser 1, debe cambiar a "-1", de esta forma, el cálculo del siguiente movimiento seria: X1=10 +1= 11; Y1=10+(-1)=9. Hemos cambiado la dirección del movimiento vertical de la bola 1, y así seguirá, hasta que la bola rebote en otra pared, y debamos cambiar el valor de DX o DY.
+
+Para hacer este cambio, siendo que el valor de DY es 1 inicialmente, sería suficiente con hacer:
+
+[code]DY = -DY[/code]
+
+Consulta la matriz de la entrada anterior, porque en el programa, no se usan las variables que he puesto en este ejemplo, sino que los datos se guardan en la matriz b%(). Es lo mismo. sigue habiendo una X e Y por cada bola, y un desplazamiento de X e Y por cada bola, solo que, por ejemplo, para referirnos a la Y de la bola 1, debemos usar b%(0, 1). Y para referirnos a su desplazamiento, deberemos usar b%(0, 3).
+
+Para hacer el cambio de dirección, entonces, usaríamos:
+
+[code]b%(0, 3) = -b%(0, 3)[/code]
+
+Y para añadir el desplazamiento a la Y después:
+
+[code]b%(0, 1) = b%(0, 1) + b%(0, 3)[/code]
+
+Veamos cómo usarlo en el programa.
+
+[size=150][b]La versión III[/b][/size]
+
+En esta nueva versión del programa se han llevado a cabo algunos cambios y se ha añadido varias funciones. Este es el código.
+
+[code]100 REMark Yin & Yang v.3
+110 REMark GPL, 2024, Badaman
+120 REMark Movimiento y rebotes
+130 :
+140 CLEAR: RANDOMISE: ch%=3: ch2%=4
+150 dev$="mdv1_": prg$="yinyang": v$="v3"
+160 :
+170 INICIO: PANTALLA
+180 REPeat prg
+190   n%=1-n%
+200   BORRA(n%): CALCULA(n%)
+210   MUEVE(n%): PRUEBA(n%)
+220   IF KEYROW(1)=8: EXIT prg: REMark ESC
+230 END REPeat prg
+240 FIN: STOP
+250 :
+260 DEFine PROCedure sa
+270   REMark Salva los cambios
+280   file$ = dev$&prg$&"_"&v$&"_bas"
+290   DELETE file$ : SAVE file$
+300 END DEFine sa
+310 :
+320 DEFine PROCedure INICIO
+330   REMark Inicializacion del programa
+340   an%=20-1: al%=20-1
+350   DIM tablero%(an%, al%): DIM b%(1,5)
+360   f$=" ": b$="O": REMark b$=CHR$(226)
+370   FOR i=0 TO 19
+380     FOR j= 0 TO  9: tablero%(i,j)=0
+390     FOR j=10 TO 19: tablero%(i,j)=1
+400   END FOR i
+410   REMark Bolas, posiciones 'x' e 'y'
+420   b%(0,0)=RND( 0 TO 18) : REMark x1
+430   b%(0,1)=RND( 0 TO  9) : REMark y1
+440   b%(1,0)=RND( 1 TO 19) : REMark x2
+450   b%(1,1)=RND(10 TO 19) : REMark y2
+460   REMark Desplazamientos 'dx' y 'dy'
+470   b%(0,2)= 1: b%(0,3)= 1: REMark d1
+480   b%(1,2)=-1: b%(1,3)=-1: REMark d2
+490   REMark Ambas puntuaciones
+500   b%(0,4)=0 : b%(1,4)=0
+510   REMark Colores
+520   b%(0,5)=1 : b%(1,5)=6
+530   n%=1 : REMark Bola alterna
+540 END DEFine INICIO
+550 :
+560 DEFine PROCedure FIN
+570   REMark Finalizacion del programa
+580   CLOSE #ch%: CLOSE #ch2%: MODE 4
+590 END DEFine FIN
+600 :
+610 DEFine PROCedure PANTALLA
+620   REMark Presentacion de pantalla
+630   MODE 8
+640   REMark Dibuja tablero
+650   OPEN   #ch%,scr_512x256a0x0
+660   OPEN   #ch2%,scr_324x225a97x18
+670   PAPER  #ch%,5,7: CLS #ch%
+680   PAPER  #ch2%,0: CLS #ch2%
+690   WINDOW #ch%,324,202,94,16
+700   WINDOW #ch2%,324,22,94,218
+710   PAPER  #ch%,b%(0,5): CLS #ch%
+720   PAPER  #ch2%,3: CLS #ch2%
+730   BORDER #ch%,1,3: BORDER #ch2%,1
+740   BLOCK  #ch%,160,200,160,0,b%(1,5)
+750   CSIZE  #ch%,3,0: CSIZE #ch2%,0,1
+760   INK    #ch2%,4: CURSOR #ch2%,99,0
+770   PRINT  #ch2%,"YIN & YANG"
+780   INK    #ch2%,7
+790   REMark Posicion inicial de pelotas
+800   FOR i=0,1: MUEVE(i): MARCADOR(i)
+810 END DEFine PANTALLA
+820 :
+830 DEFine PROCedure MARCADOR(bola%)
+840   REMark Actualiza el marcador
+850   CURSOR #ch2%,283*bola%,0
+860   PRINT  #ch2%,CERO$(b%(bola%,4))
+870 END DEFine MARCADOR
+880 :
+890 DEFine FuNction CERO$(valor)
+900   REMark Rellena con ceros, max. 999
+910   txt$=valor: ln%=LEN(txt$)
+920   RETurn FILL$("0",3-ln%)&txt$
+930 END DEFine CERO$
+940 :
+950 DEFine PROCedure BORRA(bola%)
+960   REMark Borra la bola
+970   LOCal x%, y%, c1%
+980   x%=b%(bola%,0) : y%=b%(bola%,1)
+990   c1%=b%(bola%,5): PAPER #ch%,c1%
+1000   AT #ch%,x%,y%: PRINT #ch%,f$
+1010 END DEFine BORRA
+1020 :
+1030 DEFine PROCedure CALCULA(bola%)
+1040   REMark Calcula un movimiento
+1050   LOCal x%, y%, dx%, dy%
+1060   x%=b%(bola%,0): dx%=b%(bola%,2)
+1070   y%=b%(bola%,1): dy%=b%(bola%,3)
+1080   x%=x%+dx%: b%(bola%,0)=x%
+1090   y%=y%+dy%: b%(bola%,1)=y%
+1100 END DEFine CALCULA
+1110 :
+1120 DEFine PROCedure MUEVE(bola%)
+1130   REMark Mueve la bola
+1140   LOCal x%, y%, c1%, c2%
+1150   x%=b%(bola%,0): y%=b%(bola%,1)
+1160   c1%=b%(bola%,5): c2%=b%(1-bola%,5)
+1170   PAPER #ch%,c1%: INK #ch%,c2%
+1180   AT #ch%,x%,y% : PRINT #ch%,b$
+1190 END DEFine MUEVE
+1200 :
+1210 DEFine PROCedure PRUEBA(bola%)
+1220   REMark Comprueba si rebota
+1230   LOCal x%, y%, dx%, dy%
+1240   x%=b%(bola%,0): dx%=b%(bola%,2)
+1250   y%=b%(bola%,1): dy%=b%(bola%,3)
+1260   IF x%=0 OR x%=19: b%(bola%,2)=-dx%
+1270   IF y%=0 OR y%=19: b%(bola%,3)=-dy%
+1280 END DEFine PRUEBA[/code]
+
+En la línea 530 inicializo una nueva variable n%. La usaré en el flujo principal del programa, en la línea 190. Esta variable va a servirnos para identificar, alternativamente, la bola con la que vamos a trabajar, y lo hará con la fórmula:
+
+[code]n% = 1 – n%[/code]
+
+Como n% empeiza valiendo 1, el valor de n% al realziar esta operación es 0, porque 1 – 1 = 0. La siguiente vez el valor de n% será 1, porque 1 – 0 = 1, y vuelta a empezar, 0, 1, 0, 1…
+
+Como se aprecia, en las líneas 200 y 210 se han añadido cuatro procedimientos que toman como parámetro de entrada este valor. Veremos a continuación que hace cada uno de ellos, pero lo que hagan va a estar supeditado al valor de n%, que indica en todo momento si estamos trabajando con la bola 1 (valor 0) o con la bola 2 (valor 1).
+
+Seguimos. Las líneas de la 780 a la 830 han sido sustituidas por una única línea:
+
+[code]FOR i=0,1: MUEVE(i): MARCADOR(i)[/code]
+
+Como veremos, MUEVE() pinta una bola, la que le digamos, y MARCADOR() pinta el marcador de una bola, también la que le digamos.

@@ -1,0 +1,352 @@
+Programando mi primera Demo en QL – fascículo II, variables y tablero
+
+Viene del hilo: https://retrowiki.es/viewtopic.php?f=98&t=200040237
+
+Sigo con esta serie de artículos, y empezamos hablando de los tipos de los variables.
+
+[size=150][b]Variables[/b][/size]
+
+Como en otros BASIC de la época, en SuperBASIC las variables numéricas se indican con una serie de letras y números, dando comienzo con una letra, y pudiendo usar guiones bajos, pero no otro signo.
+
+Las variables de cadeta o de texto, emplean el símbolo $ al final. Así «var_numero» y «var_cadena$» serán respectivamente, una variable numérica y una variable de cadena.
+
+Pero en SuperBASIC podemos indicar que una variable va a contener un valor numérico entero añadiendo % al final del nombre de la variable, así pues «var_entero%» será una variable que almacenará valores enteros. Si le asignamos un valor decimal, sólo almacenará la parte entera. Esto es útil para reducir el consumo de memoria. Las variables enteras ocupan menos espacio en memoria y la aplicación funcionará más rápido, y esto también es de utilidad si decidimos compilar nuestra aplicación, ya que el ejecutable ocupará menos.
+
+Pero en SuperBASIC, este tipo de variables enteras no pueden usarse en los bucles, a no ser que hayamos cambiado nuestra ROM por la ROM Minerva, una ROM avanzada a la ROM original del QL, que sí lo permite.
+
+Como siempre, puedes conocer más leyendo la guía del usuario.
+
+[size=150][b]La versión II[/b][/size]
+
+En esta nueva versión del programa he añadido contenido a los procedimientos INICIO, PANTALLA y FIN, he añadido un nuevo procedimiento MARCADOR y una función llamada CEROS$, que recibe un parámetro, como luego veremos.
+
+El nuevo código es este:
+
+[code]100 REMark Yin & Yang v.2
+110 REMark GPL, 2024, Badaman
+120 REMark Variables y tablero
+130 :
+140 CLEAR: RANDOMISE: ch%=3: ch2%=4
+150 dev$="mdv1_": prg$="yinyang": v$="v2"
+160 :
+170 INICIO: PANTALLA
+180 REPeat prg
+190   REMark codigo del programa
+200   IF KEYROW(1)=8: EXIT prg: REMark ESC
+210 END REPeat prg
+220 FIN: STOP
+230 :
+240 DEFine PROCedure sa
+250   REMark Salva los cambios
+260   file$ = dev$&prg$&"_"&v$&"_bas"
+270   DELETE file$ : SAVE file$
+280 END DEFine sa
+290 :
+300 DEFine PROCedure INICIO
+310   REMark Inicializacion del programa
+320   an%=20-1: al%=20-1
+330   DIM tablero%(an%, al%): DIM b%(1,5)
+340   f$=" ": b$="O": REMark b$=CHR$(226)
+350   FOR i=0 TO 19 
+360     FOR j= 0 TO  9: tablero%(i,j)=0
+370     FOR j=10 TO 19: tablero%(i,j)=1
+380   END FOR i
+390   REMark Bolas, posiciones 'x' e 'y'
+400   b%(0,0)=RND( 0 TO 18) : REMark x1
+410   b%(0,1)=RND( 0 TO  9) : REMark y1
+420   b%(1,0)=RND( 1 TO 19) : REMark x2
+430   b%(1,1)=RND(10 TO 19) : REMark y2
+440   REMark Desplazamientos 'dx' y 'dy'
+450   b%(0,2)= 1: b%(0,3)= 1: REMark d1
+460   b%(1,2)=-1: b%(1,3)=-1: REMark d2
+470   REMark Ambas puntuaciones
+480   b%(0,4)=0 : b%(1,4)=0
+490   REMark Colores
+500   b%(0,5)=1 : b%(1,5)=6
+510 END DEFine INICIO
+520 :
+530 DEFine PROCedure FIN
+540   REMark Finalizacion del programa
+550   CLOSE #ch%: CLOSE #ch2%: MODE 4
+560 END DEFine FIN
+570 :
+580 DEFine PROCedure PANTALLA
+590   REMark Presentacion de pantalla
+600   MODE 8
+610   REMark Dibuja tablero
+620   c1%=b%(0,5): c2%=b%(1,5)
+630   OPEN   #ch%,scr_512x256a0x0
+640   OPEN   #ch2%,scr_324x225a97x18
+650   PAPER  #ch%,5,7: CLS #ch%
+660   PAPER  #ch2%,0: CLS #ch2%
+670   WINDOW #ch%,324,202,94,16
+680   WINDOW #ch2%,324,22,94,218
+690   PAPER  #ch%,c1%: CLS #ch%
+700   PAPER  #ch2%,3: CLS #ch2%
+710   BORDER #ch%,1,3: BORDER #ch2%,1
+720   BLOCK  #ch%,160,200,160,0,c2%
+730   CSIZE  #ch%,3,0: CSIZE #ch2%,0,1
+740   INK    #ch2%,4: CURSOR #ch2%,99,0
+750   PRINT  #ch2%,"YIN & YANG"
+760   INK    #ch2%,7
+770   REMark Posicion inicial de pelotas
+780   PAPER  #ch%,c1%: INK #ch%,c2%
+790   AT     #ch%,b%(0,0),b%(0,1)
+800   PRINT  #ch%,b$
+810   PAPER  #ch%,c2%: INK #ch%,c1%
+820   AT     #ch%,b%(1,0),b%(1,1)
+830   PRINT  #ch%,b$
+840   MARCADOR
+850 END DEFine PANTALLA
+860 :
+870 DEFine PROCedure MARCADOR
+880   REMark Actualiza el marcador
+890   AT     #ch2%,0,0
+900   PRINT  #ch2%,CERO$(b%(0,4))
+910   CURSOR #ch2%,283,0
+920   PRINT  #ch2%,CERO$(b%(1,4))
+930 END DEFine MARCADOR
+940 :
+950 DEFine FuNction CERO$(valor)
+960   REMark Rellena con ceros, max. 999
+970   txt$=valor: ln%=LEN(txt$)
+980   RETurn FILL$("0",3-ln%)&txt$
+990 END DEFine CERO$[/code]
+
+[size=150][b]Matrices[/b][/size]
+
+No te asustes. Esto no son Mátemáticas, o al menos no muchas Matemáticas. Ya sabemos que hay dos bolas que rebotan, esto se ve en la captura de la demo (articulo anterior). Y hay un espacio sobre el que se mueven. Llamemos a las bolas «b» y al espacio «tablero».
+
+Para conocer en qué posición del tablero está cada bola en un momento dado necesitaremos guardar una posición «X» y otra «Y», por cada bola, osea X1, Y1 y X2, Y2. También necesitaremos saber el desplazamiento que debemos aplicar a la bola: DX1, DY1, DX2, DY2.
+
+Si una bola está en la posición X,Y, la siguiente posición en la que estará será X+DX e Y+DY.
+
+Además, por cada bola, necesitaremos saber su color y la puntuación que tiene en cada momento.
+
+Son muchas variables relacionadas con una misma cosa. ¿Qué tal si las juntamos en una estructura de datos de dos dimensiones, como una tabla, en la que haya dos columnas, una para cada bola, y 6 filas, una por cada concepto? Veamos la siguiente tabla.
+
+[code]Matriz: b%(1, 5)    Bola 1	Bola 2
+Posición X			 (0, 0)	(1, 0)
+Posición Y			 (0, 1)	(1, 1)
+Desplazamiento X    (0, 2)	(1, 2)
+Desplazamiento Y    (0, 3)	(1, 3)
+Color				   (0, 4)	(1, 4)
+Puntos				  (0, 5)	(1, 5)[/code]
+﻿
+Si, por djemplo, quiero saber la posición Y de la bola 2, tengo que consultar el elemento (1, 1) de la matriz. Fijate que la matriz empeiza en (0, 0), y que cada elemento de la matriz comienza por 0, o 1 según sea el valor de la bola: 0 para la primera bola (bola 1) y 1 para la segunda bola (bola 2).
+
+Para definir una matriz como esta, empleamos la instrucción DIM seguida del valor máximo de las dimensiones de la matriz, en este caso (1, 5):
+
+[code]DIM b%(1, 5)[/code]
+
+Como los valores que vamos a guardar son numéricos y enteros, podemos definir a la matriz como «b%». Luego veremos como poner valores en la matrizs y consultarlos.
+
+El tablero tiene 20 x 20 casillas. Necesitamos el tablero porque hay zonas de este que pertenecen a una bola y otras zonas que pertenencen a las otras bolas. ¿Cómo saber que zonas del tablero son de la bola 1 y cuáles de la bola 2? con una matriz que tenga las dimensiones del tablero, y que guarde, en cada elemenrto de la matriz un 0 si pertenece a la bola 1 y un 1 si pertence a la bola 2. Así:
+
+[code]DIM tablero%(19, 19) [/code]
+
+Osea, 20-1 en ambos casos. Recuerda que las matrices comienzan por 0, y de 0 a 19 van 20.
+
+Con esto tenemos definido cómo queremos guardar los datos. Vamos a ver cómo.
+
+[size=150][b]INICIO[/b][/size]
+
+[code]300 DEFine PROCedure INICIO
+310   REMark Inicializacion del programa
+320   an%=20-1: al%=20-1
+330   DIM tablero%(an%, al%): DIM b%(1,5)
+340   f$=" ": b$="O": REMark b$=CHR$(226)
+350   FOR i=0 TO 19 
+360     FOR j= 0 TO  9: tablero%(i,j)=0
+370     FOR j=10 TO 19: tablero%(i,j)=1
+380   END FOR i
+390   REMark Bolas, posiciones 'x' e 'y'
+400   b%(0,0)=RND( 0 TO 18) : REMark x1
+410   b%(0,1)=RND( 0 TO  9) : REMark y1
+420   b%(1,0)=RND( 1 TO 19) : REMark x2
+430   b%(1,1)=RND(10 TO 19) : REMark y2
+440   REMark Desplazamientos 'dx' y 'dy'
+450   b%(0,2)= 1: b%(0,3)= 1: REMark d1
+460   b%(1,2)=-1: b%(1,3)=-1: REMark d2
+470   REMark Ambas puntuaciones
+480   b%(0,4)=0 : b%(1,4)=0
+490   REMark Colores
+500   b%(0,5)=1 : b%(1,5)=6
+510 END DEFine INICIO[/code]
+
+Este procedimiento, como dijimos en el artículo anterior, inicializa las variables de la demo.
+
+En la línea 320 se define el ancho y alto del tablero en las variables an% y al%. En la 330 se inicializan las dos matrices tablero% y b%.
+
+Nota: Podría haber puesto DIM tablero%(19, 19) en vez de tablero%(an%, al%), pero así aprovechamos para ver que a una matriz podemos pasarle valores de una variable. En estos fascículos vas a ver cosas así con frecuencia. A los ya entendidos les parecerá que no tiene sentido, pero está pensado para probar y aprender cosas.
+
+En la línea 340 definimos las variables de cadena f$ y b$. no confundir b$ con b%. La variable b$ va a contener el caracter con el que representaremos la bola. una O mayúscula. La variable f$ contiene un carácter vacío. Es lo que usaremos cuando queramos borrar la bola. He puesto un comentario con una definición alternativa de b$. Con b$=CHR$(226) asignamos a b$ el carácter que representa una bola en el juego de caracteres de la ROM Minerva, ya que esta ROM tiene un juego de caracteres diferente, con más símbolos. Puedes ver el juego de caracteres de tu ROM con este sencillo programa:
+
+[code]10 FOR i=0 TO 255: PRINT CHR$(i)![/code]
+
+Seguimos. Entre las líneas 350 y 380 tenemos un bucle FOR i=0 TO 19 que termina con un END FOR i, y que nos va a servir para hacer 20 vueltas. A cada vuelta, vamos a meter valores en la matriz tablero%.
+
+Las lineas 360 y 370 son a la vez dos bucles más. Ambos bucles están dentro (anidados) del bucle de las 20 vueltas, pero pasa algo curioso, no hay END FOR... Si el bucle y las instrucciones se ponen en una misma línea, no es necesario poner END FOR.
+
+Con estas dos líneas vamos a llenar de 0 y de 1 cada parte del tablero que corresponde, inicialmente, a cada bola, tablero%(i, j), siendo que «i» corresponde a la fila y «j» a la columna. Estas son las varialbes de cada bucle. La asignación se hace mediante el signo =, como con cualquier varialbe, pero la variable debe indicar el elemento (i, j) en este caso.
+
+Entre las líneas 390 y 500 defino los valores de la matriz b%(1, 5). Ver comentarios.
+
+de las líneas 400 a la 430 uso la instrucción RND. Esta me permite obtener un valor al azxar para inicializar la variable, entre un par de valores dados. Al principio del programa usamos RANDOMISE, este es el motivo, generar números verdaderamente aleatorios con cada ejecución del programa.
+
+Las líneas 450 y 460 asignan el valor del desplazamiento inicial de cada bola, de tal forma que la bola 1 avanzará 1 posición horizontal a la derecha y una vertical abajo, y la bola 2 lo hará al contrario, avanzará una posición horizonal a la izquierda, y una posición vertical arriba.
+
+[size=150][b]FIN[/b][/size]
+
+[code]530 DEFine PROCedure FIN
+540   REMark Finalizacion del programa
+550   CLOSE #ch%: CLOSE #ch2%: MODE 4
+560 END DEFine FIN[/code]
+
+No hemos terminado, nos queda mucha tela que cortar. FIN es el procedimiento que uso para terminar el programa correctamente.
+
+Fijate que en la línea 140 he añadido ch% y ch2%. Estas variables van a contener el núnero de canal (channel) de las zonas de pantalla donde vamos a dibujar. Si no lo sabías, el QL tiene la posibilidad de dfefinir rectángulos de pantalla denominados ventanas, donde podemos escribir como si de otras pantallas se tratase, con su sistema propio de coordenadas independiente, colores de fondo y de tinta... luego veremos cómo se definen.
+
+El caso es que vamos a usar dos canales que identifican estas ventanas, y en el procedimiento FIN lo que hacemso es cerrar estos canales que corresponden a ventanas mediante la orden CLOSE. Las ventansa las abriremos en el procedimiento PANTALLA, aunque también podríamos haberlas abierto (OPEN) en el procedimiento INICIO.
+
+En este procedimiento, además, cambiamos al MODE 4 antes de salir. Esto ayudará a ver mejor los listados, con más caracteres por línea cuado hagamos LIST.
+
+[size=150][b]PANTALLA[/b][/size]
+
+[code]580 DEFine PROCedure PANTALLA
+590   REMark Presentacion de pantalla
+600   MODE 8
+610   REMark Dibuja tablero
+620   c1%=b%(0,5): c2%=b%(1,5)
+630   OPEN   #ch%,scr_512x256a0x0
+640   OPEN   #ch2%,scr_324x225a97x18
+650   PAPER  #ch%,5,7: CLS #ch%
+660   PAPER  #ch2%,0: CLS #ch2%
+670   WINDOW #ch%,324,202,94,16
+680   WINDOW #ch2%,324,22,94,218
+690   PAPER  #ch%,c1%: CLS #ch%
+700   PAPER  #ch2%,3: CLS #ch2%
+710   BORDER #ch%,1,3: BORDER #ch2%,1
+720   BLOCK  #ch%,160,200,160,0,c2%
+730   CSIZE  #ch%,3,0: CSIZE #ch2%,0,1
+740   INK    #ch2%,4: CURSOR #ch2%,99,0
+750   PRINT  #ch2%,"YIN & YANG"
+760   INK    #ch2%,7
+770   REMark Posicion inicial de pelotas
+780   PAPER  #ch%,c1%: INK #ch%,c2%
+790   AT     #ch%,b%(0,0),b%(0,1)
+800   PRINT  #ch%,b$
+810   PAPER  #ch%,c2%: INK #ch%,c1%
+820   AT     #ch%,b%(1,0),b%(1,1)
+830   PRINT  #ch%,b$
+840   MARCADOR
+850 END DEFine PANTALLA[/code]
+
+Primero establezco, con MODE 8, el modo de pantalla a modo 8 (8 colores) que tiene una resolución de 256x256 pixeles.
+
+En la línea 620 leo los colores de la matriz de las dos bolas y los guardo en c1% y c2% con c1%=b%(0,5): c2%=b%(1,5). Como vemos, podemos usar la matriz como una variable. Lo uso aquí, además de como medio de parendizaje, para no tener que escribir la posición de la matriz cada vez que quiero usar el color de la bola 1 o de la bola 2.
+
+En las líneas 630 y 640 abro el canal ch% y el canal ch2%. vemos que el canal ch% tiene la siguiente definición:
+
+[code]OPEN #ch%,scr_512x256a0x0[/code]
+
+Con OPEN abrimos el canal, con «scr_ » decimos que queremos qwe ese canal tenga asociada una ventana, y con el resto decimos que la ventana debe tener unas dimensiones de 512x256 y estar ubicada en la posición 0x0 de la pantalla, es decir, en la esquina superior izquierda.
+
+Fijate que, aunque en el modo 8 las dimensiones de la pantalla son de 256x256 pixels, igualmente al abrir un canal destinado a una ventana debemos indicar las dimensiones de la ventana con un tamaño máximo de 512x256.
+
+La segunda ventana tiene otras dimensiones, 324x225 y está ubicada en la posición 97x18, siendo 97 la posición horizontal y 18 la vertical:
+
+[code]OPEN #ch2%,scr_324x225a97x18[/code]
+
+En las líneas 650 y 660 pongo el color de fondo de la ventana con PAPER y borro cada ventana de manera idependiente con CLS. Para ch% definimos un color mezcla entre cian (azul claro) y blanco, y para ch2% le asigno el color negro. Ver los colores en el QL. Tras esto, la pantalla se debe ver con un fondo azul clarito y un recuadro negro en el centro. Al dibujar esta ventana y pintarla de negro lo que realmente he hecho es dibujar la sombra del tablero y del marcador.
+
+En las líneas 670 y 680 uso la instrucción WINDOW para cambiar las dimensiones de las ventanas. Los datos son los mismos que al definir una ventana, ancho, alto, posición hortizontal y posición vertical, pero con WINDOWS podemos cambiar su tamaño y posición en cualquier momento. Con los cambios de posición de ventamas hemos hecho que ambas tengan el mismo ancho, estén las dos una encima de la otra, en el centro, y ahora podemos seguir trabajando con ellas, pero todo lo que hagamos a partir de ahora con esos canales sólo agfectará a la zona interior de sus nuevas dimensiones, y el fondo que tenían antes quedan pintados en pantalla, pues las ventanas son realmente invisibles a nuestros ojos, salvo que le demos un color de fondo o pintemos o escribamos en ellas.
+
+En las lineas 690 y 700 pongo el color de fondo de cada ventana, el color de la bola 1 en ch% y el color magenta (rosa) en ch2%. El canal ch% es que usaremos para dibular el espacio donde rebotan las pelotas, el tablero, y le he dado las medidas de 20x20 caracteres. ch2% contendrá el marcador.
+
+En la línea 710 defino un borde tanto para ch% como para ch2%. En el primer caso es un borde del grosor de un pixel y de color magenta, y en el caso de ch% tambien tiene un grosor de un pixel, y este tendrá el color del fondo, ya que no le he definido un color concreto. Los bordes reducen el ancho y alto del espacio donde podemos escribir en las ventanas, de tal forma que, si la ventana asociada al canal ch% está definida con un ancho de 324 y un alto de 202 pixeles, sólo podremos usar 322 y 200 respectivamante, pues el borde que hemos creado resta 1 pixel arriba, otro abajo, otro a la derecha y otro a la izquierda.
+
+En la línea 720 uso BLOCK. Esta instrucción permirte crear rectángulos dentro de ventanas. Los datos son los mismos que los de las ventanas, ancho, alto, x e y, y además podemos indicaer el color de relleno, pero estos bloques  tiene como referencia de posiciones el punto 0,0 de la ventana en la que se dibujan, y además están sujetos a un valor de escala. Dejaremos esto para otro momento. Ahora es suficiente con saber para que pintamos este rectángulo.
+
+Al cambiar el tamaño de la ventana asociada al canal ch% pintamos la ventana delo color de la bola 1, pero en la demo, cada bola es dueña de la mitad del tablero. Con este BLOCK pinto la mitad correspondiente al color de la bola 2 en la mitad derecha del tablero. Es decir, primero puse el papel (fondo) de la ventana entera con el color c1% y luego he puesto el papel de la mitad derecha del color c2%.
+
+En la línbea 730 cambio el tamaño de los caracteres con CSIZE. Esta instrucción permite tener caracteres el doble de ancho y alto que su tamaño original y con distinto espaciado. Ver CSIZE. Es muy útil para títulos.
+
+En la línea 740 pongo el color de la tinta INK con la que van a ser dibujados los caracteres en ch2% de color verde, y luego uso CURSOR para indicar la posición exacta dentro de la ventana donde se va a escribir el texto. Fíjate lo potente que es esto. Podemos empezar a escribir en cualquier posición de la ventana con una presición de píxeles. Por supuesto también podemso escribvir caracteres de la forma tradicional indicado filas y columnas con la instrucción AT.
+
+En la línea 750 se manda a imprimir com PRINT el título de la demo: "YIN & YANG" que aaprecerá centrada en la ventana por arte de la instrucción CURSOR.
+
+En la siguiente línea cambio el color de la tinta de este canal del color verde, que era el que estaba, al color blanco. 
+
+Entre las líneas 780 y 830 dibujo las dos bolas en pantalla, en su posición inicial. Primero la bola 1 y luego la bola 2 de la misma forma. Pongo el color del fondo, y el color de la tinta, con AT indico la posición en la cuadrícula de caracteres donde estará la bola, datos que obtengo de b%, de tal forma que a AT le paso el canal, lla posición X y la posición Y, y luego con PRINT imprimo la pelota b$ donde le hemos dicho.
+
+Ya tenemos dibujado el tablero y las dos pelotas. Ahora, con invocando al procedimiento MARCADOR voy a incializar los marcadores.
+
+[size=150][b]MARCADOR[/b][/size]
+
+[code]870 DEFine PROCedure MARCADOR
+880   REMark Actualiza el marcador
+890   AT     #ch2%,0,0
+900   PRINT  #ch2%,CERO$(b%(0,4))
+910   CURSOR #ch2%,283,0
+920   PRINT  #ch2%,CERO$(b%(1,4))
+930 END DEFine MARCADOR[/code]
+
+Este procedimiento es el encargado de poner los puntos de la bola 1 y de la bola 2 en el canal ch2%. En la bola 1 uso AT para posicionar los puntos y en la bola 2 uso CURSOR para posicionar de forma más precisa sus puntos. En ambos casos, a la hora de imprimir los puntos, uso la función CERO$, es decir, imprimo lo que devuelve de la función CERO$ cuando le paso el valor de los puntos que tienen que imprimirse. Ahora veremos por qué uso esta función.
+
+[size=150][b]CERO$(valor)[/b][/size]
+
+[code]950 DEFine FuNction CERO$(valor)
+960   REMark Rellena con ceros, max. 999
+970   txt$=valor: ln%=LEN(txt$)
+980   RETurn FILL$("0",3-ln%)&txt$
+990 END DEFine CERO$[/code][/code]
+
+Esta es una función, no un procedimiento. La particularidad de las funciones es que devuelven algo despues de procesarlo, y para ello usan RETurn.
+
+Lo que hace CERO$ es recibir un valor, en este caso la puntuación de una bola, y devolver una cadena de texto de tres caracteres de ancho formateada con ceros a la izquierda de tal forma que si, por ejemplo, le pasamos el valor 8 devolverá "008", si le pasamos el valor 15, devolverá "015", y si le pasamos el valor 321 devolverá "321". Esto serśa de ayuda para que el marcador se vea siempre bien.
+
+Al empezar, como la puntuación de cada bola está indiacada a 0, ambos marcadores se verán como "000". Cuando la función lo devuelva, esto es lo que se imprimirá en el procedimiento MARCADOR para cada uno de los marcadores de cada bola.
+
+[code]970   txt$=valor: ln%=LEN(txt$)
+980   RETurn FILL$("0",3-ln%)&txt$[/code]
+
+En la línea 970 se hace que la variable txt$ contenga una cadena de texto que corresponde a la puntuación (valor), y luego con LEN se haya la longitud de esta cadena y se guarda en ln%.
+
+En la línea 980 se devuelve el resultado de la operación de rellenar con los ceros "0" que sena necesarios, mediante la instrucción FILL$, el valor guardado en txt$. Es decir, con FILL$ creamos una cadena de longitud 3-ln%, osea lo que falta para completar el número, y con & le añadimos el número que ya es una cadena txt$.
+
+Un ejemplo: si la variable valor conrtiene 15, txt$ será "15" (una cadena), su longitud será 2, lo que obtenemos con LEN, y entonces deberemos rellenar con FILL$ a la izquierda con un (1) cero, es decir 3 - ln%, osea 3 - 2 = 1, y añadirle "15".
+
+[size=150][b]Y en la próxima entrega...[/b][/size]
+
+en la proxima ocasión veremos como aplicar movimiento y rebotes a cada una de las bolas para que se muevan por el tablero libremente.
+
+[size=150][b]Ejercicio[/b][/size]
+
+El juego consiste en mover libremente por la ventana un avatar identificado con la letra «C» que se irá comiendo los donuts representados con la letra «o» que apareceran en posiciones al azar. Al comerse un donut aparecerá otro en otra posición, y así hasta pulsar ESC.
+
+Dibuja una ventana en el centro de la pantalla, con las dimensiones que tú quieras. Estas dimensiones deben ajustarse al ancho y alto de los caracteres, incluso si usas borde. de tal forma que los caracteres que se impirman en ella deben caber completamente.
+
+Usa las teclas del cursor  y KEYROW para moverte, y controla que no te sales de la ventana.
+
+ Crea las variables siguientes: 
+
+    Una variable que contenga la letra C mayúscula, que será nuestro avatar en el juego.
+    Una variable que contenga la letra o minúscula, que será lo que nos vamos a comer en el juego. 
+    Una variable que contenga un espacio vacío " " que usaremos para borrar el avatar y el objeto a comer antes de pintarlo de nuevo en la siguiente posición.
+    Una variable X y otra Y que guarden las posiciones horizontal y vertical de nuestro avatar (la "C") en la ventana. Puedes inciarlizarlas en la posición que desees dentro de la ventana o hacerlo de forma aleatoria.
+    Una variable X2 y otra Y2 que guarden las posiciones horizontal y vertical del objeto a comer y que aparecerá en las posicones aleatorias que le indiques.
+
+Para moverte por la ventana suma o resta uno a las posiciones X e Y del avatar con cada pulsación, pero antes, asegurate que X e Y no han llegado a los bordes de la ventana, si es así, no sumes ni restes nada a las posiciones X e Y, simplemente por ahí no se puede avanzar.
+
+[b][size=150]Enlaces recomendados[/size][/b]
+
+    [url=https://sinclairql.speccy.org/manuales/sqlgu.htm]Manual del QL en español[/url]
+    [url=https://sinclairql.speccy.org/manuales/tk2/index.htm]Manual de Toolkit II en español[/url]
+    [url=https://github.com/JavGuerra/Sinclair-QL-YinYang.git]Código en GitHub, repo Sinclair-QL-YinYang[/url]
+
+Esta entrada se publicó primero en [url=https://sinclairqles.wordpress.com/2024/03/23/programando-mi-primera-demo-en-ql-fasciculo-ii-variables-y-tablero/]QBLog[/url]
+
+[size=150][b]Siguiente entrega[/b][/size]
+
+https://retrowiki.es/viewtopic.php?f=98&t=200040286
