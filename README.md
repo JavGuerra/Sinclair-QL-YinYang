@@ -2,7 +2,7 @@
 
 Este repositorio contiene las diferentes entregas de la demo YinYang creada para enseñar programación en lenguaje SuperBASIC.
 
-![Captura de pantalla de la demo](docs/yin-yang_ql.png)
+![Captura de pantalla de la demo](docs/yinyang_ql.png)
 
 Encontrarás el código de las distintas versiones del programa en la carpeta `src`.
 
