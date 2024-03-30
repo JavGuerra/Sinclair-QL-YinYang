@@ -4,7 +4,7 @@ Este repositorio contiene las diferentes entregas de la demo YinYang creada para
 
 ![Captura de pantalla de la demo](docs/yinyang_ql.png)
 
-Encontrarás el código de las distintas versiones del programa en la carpeta `src`.
+Encontrarás el código de las distintas versiones del programa en la carpeta `src`, y los ejercicios presentados por los lectores en la carpeta `src/ejercicios`.
 
 Las explicaciones acerca del desarrollo de la demo comienzan en esta entrada de QBlog:
 
